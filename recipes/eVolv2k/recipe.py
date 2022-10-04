@@ -12,12 +12,14 @@ time_concat_dim = ConcatDim('year', [0], nitems_per_file=1)
 pattern = FilePattern(make_url, time_concat_dim)
 
 
-# the file does contain latiude data, but the data is not gridded, so it is left as a variable
+# the file does contain latitude data, but the data is not gridded, so it is left as a variable
 def postproc(ds):
+
     import cftime
     import numpy as np
+    import xarray as xr
 
-    ds['time'] = np.array(
+    times = np.array(
         [
             cftime.DatetimeProlepticGregorian(
                 ds['year'].values[ik],
@@ -28,10 +30,16 @@ def postproc(ds):
             for ik in range(len(ds['year']))
         ]
     )
-    ds = ds.set_coords(['time'])
-    ds = ds.drop_vars(['year', 'month', 'day', 'yearCE'])
-    ds = ds.sortby('time')
-    return ds
+
+    _ds = xr.Dataset()
+    _ds.coords['time'] = (('time'), times)
+
+    new_vars = [var for var in ds.data_vars.keys() if var not in ['year', 'month', 'day', 'yearCE']]
+    for var in new_vars:
+        _ds[var] = (('time'), ds[var].data)
+
+    _ds = _ds.sortby('time')
+    return _ds
 
 
 recipe = XarrayZarrRecipe(
