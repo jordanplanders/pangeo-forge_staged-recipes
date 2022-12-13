@@ -12,7 +12,7 @@ provenance:
       roles:
         - licensor
         - curator
-      url: 'https://www.ncei.noaa.gov/access/paleo-search/study/27850'
+      url: https://www.ncei.noaa.gov/access/paleo-search/study/27850
   license: CC-BY-4.0
 maintainers:
   - name: 'Jordan Landers'
